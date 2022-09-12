@@ -1,0 +1,12 @@
+version: '3'
+services:
+  db:
+    image: postgres:11
+    ports:
+    - 32701:5432
+    volumes:
+    - ./data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: yandex_disk
