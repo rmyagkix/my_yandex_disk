@@ -17,6 +17,7 @@ async def get_updates(
 ):
     return await histories.get_histories_24h(date)
 
+
 @router.get('/node/{id}/history')
 async def get_history_from_to(
         id: str,
