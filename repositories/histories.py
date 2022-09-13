@@ -1,16 +1,14 @@
-from typing import Optional
 import datetime
 from starlette.responses import JSONResponse
-from db import items
 from db.histories import histories
 from db.items import ItemType
-from models.history import HistoryUnit, HistoryUnitOut
-from models.item import Item, TreeItems
+from models.history import HistoryUnitOut
 from .base import BaseRepository
 
 
 class HistoryRepository(BaseRepository):
     async def get_histories_24h(self, date):
+        """История по всем измененным файлам за 24 часа до date"""
         if not date:
             return JSONResponse(
                 status_code=400,
@@ -33,11 +31,13 @@ class HistoryRepository(BaseRepository):
 
     @classmethod
     async def to_datetime(cls, date):
+        """Перевод времени из строки в datetime"""
         if date:
             return datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
         return None
 
     async def history_from_to(self, id, dateStart, dateEnd):
+        """История по всем измененным от dateStart до dateEnd"""
         need_items = []
         query = histories.select().where(histories.c.id == id)
         dateStart = await self.to_datetime(dateStart)

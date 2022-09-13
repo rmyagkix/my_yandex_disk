@@ -12,7 +12,7 @@ from db.items import ItemType
 class Item(BaseModel):
     id: str = None
     parentId: Optional[str] = None
-    type: ItemType
+    type: ItemType = None
     url: Optional[str]
     size: Optional[int]
 
@@ -38,7 +38,7 @@ class Item(BaseModel):
 
 class ItemsImport(BaseModel):
     items: List[Item]
-    updateDate: datetime.datetime
+    updateDate: datetime.datetime = None
 
 
 class TreeItems(BaseModel):

@@ -13,3 +13,11 @@
 - [Docker](https://www.docker.com/)
 - [FastAPI](https://fastapi.tiangolo.com/)
 - [PostgreSQL](https://www.postgresql.org/)
+
+
+### Deploy
+- Импорт репозитория <code>команда</code>
+- Создание виртуального окружения, загрузка и установка необходимых библиотек: <code>команды</code>
+(Мб сделать через докер)
+- ...создание файла автозапуска...
+- запуск ...

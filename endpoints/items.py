@@ -22,7 +22,9 @@ async def create_item(
         item: ItemsImport,
         items: ItemRepository = Depends(get_item_repository)):
     for i in item.items:
-        await items.create(i=i, updateDate=item.updateDate)
+        n_item = await items.create(i=i, updateDate=item.updateDate)
+        if n_item:
+            return n_item
     return item
 
 

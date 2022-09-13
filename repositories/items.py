@@ -9,6 +9,7 @@ from .base import BaseRepository
 
 class ItemRepository(BaseRepository):
     async def create(self, i: Item, updateDate: datetime.datetime):
+        """Создает или обновляет Item"""
         item = Item(
             id=i.id,
             parentId=i.parentId,
@@ -16,17 +17,26 @@ class ItemRepository(BaseRepository):
             url=i.url,
             size=i.size,
         )
+        if not updateDate or not item.id or not item.type:
+            return JSONResponse(
+                    status_code=400,
+                    content={"message": "Validation Failed"},
+                )
         values = {**item.dict(), 'date': updateDate.isoformat().split('+')[0] + 'Z'}
         query = items.select().where(items.c.id == item.id)
-        in_base_item = await self.database.fetch_one(query)
-        if not in_base_item:
-            await self.find_parent(item, size=item.size, date=values['date'])
+        in_base_item = await self.database.fetch_one(query)  # Поиск эелемента в базе
+        if not in_base_item:  # В случае отсутсвие добавление нового
+            if not await self.find_parent(item, size=item.size, date=values['date']):
+                return JSONResponse(
+                    status_code=400,
+                    content={"message": "Validation Failed"},
+                )
             query = items.insert().values(**values)
             temp = await self.database.execute(query)
             query_hist = histories.insert().values(**values)
             await self.database.execute(query_hist)
             return temp
-        else:
+        else:  # Обновление имеющегося
             in_base_item = Item.parse_obj(in_base_item)
             if item.size and in_base_item.size:
                 await self.find_parent(item, size=item.size - in_base_item.size, date=values['date'])
@@ -37,14 +47,12 @@ class ItemRepository(BaseRepository):
             return temp
 
     async def find_parent(self, item: Item, size: Optional[int], date):
+        """Ф-я дял поиска родительских элементов до корневого, обновление даты и размера родителей"""
         if item.parentId:
             query = items.select().where(items.c.id == item.parentId)
             parent = await self.database.fetch_one(query)
-            if not parent:
-                return JSONResponse(
-                    status_code=400,
-                    content={"message": "Validation Failed"},
-                )
+            if not parent or Item.parse_obj(parent).type.name == 'FILE':
+                return False
             parent_i = Item.parse_obj(parent)
             if size:
                 if parent_i.size:
@@ -57,9 +65,10 @@ class ItemRepository(BaseRepository):
             query = items.update().where(items.c.id == parent_i.id).values(**values_p)
             await self.database.execute(query)
             await self.find_parent(parent_i, size, date)
-        return
+        return True
 
     async def delete_item(self, id_item: str, date: str):
+        """Удаление элемента, его потомков и истории о них"""
         try:
             datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
         except:
@@ -84,6 +93,7 @@ class ItemRepository(BaseRepository):
         )
 
     async def get_items(self, root_item_id: str):
+        """Составление дерева наследования для элемента"""
         query = items.select().where(items.c.id == root_item_id)
         item = await self.database.fetch_one(query)
         if not item:
@@ -104,6 +114,7 @@ class ItemRepository(BaseRepository):
         return root_item
 
     async def find_children(self, root_id) -> list:
+        """Ф-я дял поиска потомков элемента"""
         child_list = []
         query = items.select().where(items.c.parentId == root_id)
         child_items = await self.database.fetch_all(query)
