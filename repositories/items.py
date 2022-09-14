@@ -17,11 +17,11 @@ class ItemRepository(BaseRepository):
             url=i.url,
             size=i.size,
         )
-        if not updateDate or not item.id or not item.type:
+        if not updateDate or not item.id or not item.type or (item.type.name == 'FOLDER' and (item.url or item.size)):
             return JSONResponse(
-                    status_code=400,
-                    content={"message": "Validation Failed"},
-                )
+                status_code=400,
+                content={"message": "Validation Failed"},
+            )
         values = {**item.dict(), 'date': updateDate.isoformat().split('+')[0] + 'Z'}
         query = items.select().where(items.c.id == item.id)
         in_base_item = await self.database.fetch_one(query)  # Поиск эелемента в базе
@@ -73,9 +73,9 @@ class ItemRepository(BaseRepository):
             datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%SZ')
         except:
             return JSONResponse(
-                    status_code=400,
-                    content={"message": "Validation Failed"},
-                )
+                status_code=400,
+                content={"message": "Validation Failed"},
+            )
 
         query = items.select().where(items.c.id == id_item)
         item = await self.database.fetch_one(query)

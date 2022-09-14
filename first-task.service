@@ -1,0 +1,18 @@
+[Unit]
+Description=first-task
+After=syslog.target
+After=network.target
+After=nginx.service
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=simple
+Restart=always
+WorkingDirectory=/home/ubuntu/my_yandex_disk
+Environment=PYTHONPATH=/home/ubuntu/my_yandex_disk
+ExecStart=/home/ubuntu/my_yandex_disk/venv/bin/python /home/user/ubuntu/my_yandex_disk/main.py
+StandardOutput=append:/var/log/my_yandex_disk/main.log
+
+[Install]
+WantedBy=multi-user.target 

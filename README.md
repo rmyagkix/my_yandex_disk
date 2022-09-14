@@ -13,11 +13,20 @@
 - [Docker](https://www.docker.com/)
 - [FastAPI](https://fastapi.tiangolo.com/)
 - [PostgreSQL](https://www.postgresql.org/)
+- [sqlalchemy]()
 
 
 ### Deploy
-- Импорт репозитория <code>команда</code>
-- Создание виртуального окружения, загрузка и установка необходимых библиотек: <code>команды</code>
-(Мб сделать через докер)
-- ...создание файла автозапуска...
-- запуск ...
+- Клонирование репозитория 
+>git clone https://github.com/rmyagkix/my_yandex_disk
+- Переходим в дирректорию с проектом 
+>cd my_yandex_disk
+- Создаем виртуального окружение и активируем его
+>python3 -m venv venv 
+>source venv/bin/activate
+- загрузка и установка необходимых библиотек: 
+>pip install -r requirements.txt
+- Запуск docker-compose:
+> docker-compose -f docker-compose.yaml up -d
+- Запуск main файла:
+> python main.py 
